@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LogoutView
 
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 
@@ -13,7 +13,7 @@ from django.conf import settings
 from accounts.forms import MyUserCreationForm, UserChangeForm, ProfileChangeForm, \
     PasswordChangeForm, PasswordResetEmailForm, PasswordResetForm, HostelServiceMultiForm
 
-from .models import AuthToken, Profile, Friends
+from .models import AuthToken, Profile
 
 
 class RegisterView(CreateView):
@@ -156,6 +156,7 @@ class UserPasswordResetView(UpdateView):
     def get_token(self):
         return AuthToken.get_token(self.kwargs.get('token'))
 
+
 class BaseView(ListView):
     model = User
     template_name = 'index.html'
@@ -165,6 +166,10 @@ class BaseView(ListView):
 
 class AddFriendsView(View):
     def post(self, request, *args, **kwargs):
-        user = get_object_or_404(User, pk=kwargs.get('pk'))
-        from_user, to_user = Friends.objects.get_or_create(from_user=user, to_user=request.user)
+        friend = get_object_or_404(User, pk=kwargs.get('pk'))
+        Profile.objects.get_or_create(friends=friend, user=request.user)
+        return
+
+
+
 

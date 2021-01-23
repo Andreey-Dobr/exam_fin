@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from uuid import uuid4
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, User
+from django.utils import timezone
 from django.utils.timezone import now
 from datetime import timedelta
 
@@ -43,10 +44,11 @@ class AuthToken(models.Model):
 
 
 class Profile(models.Model):
-    user: AbstractUser = models.OneToOneField(get_user_model(), related_name='profile',
+    user = models.OneToOneField(User, related_name='profile',
                                               on_delete=models.CASCADE, verbose_name='Пользователь')
     birth_date = models.DateField(null=True, blank=True, verbose_name='Дата рождения')
     avatar = models.ImageField(null=True, blank=True, upload_to='user_pics', verbose_name='Аватар')
+    friends = models.ManyToManyField(User, related_name='friend', blank=True)
 
 
     def __str__(self):
@@ -57,8 +59,17 @@ class Profile(models.Model):
         verbose_name_plural = 'Профили'
 
 
-class Friends(models.Model):
-    to_user: AbstractUser = models.ForeignKey(get_user_model(), related_name="friends",
-                                on_delete=models.CASCADE, verbose_name='Пользователь')
-    from_user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE,
-                             related_name='friend', verbose_name='Друг')
+
+class Message(models.Model):
+    author = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Пользователь", related_name='sent_messages' )
+    recipient = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Получатель", related_name='received_messages')
+    message = models.TextField("Сообщение")
+    pub_date = models.DateTimeField('Дата сообщения', default=timezone.now)
+    is_readed = models.BooleanField('Прочитано', default=False)
+
+    class Meta:
+        ordering = ['pub_date']
+
+    def __str__(self):
+        return self.message
+

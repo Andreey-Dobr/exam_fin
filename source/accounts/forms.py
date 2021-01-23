@@ -1,13 +1,13 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
-from django.forms import DateInput
+from django.forms import DateInput, ModelForm
 from django.urls import reverse
 from django.conf import settings
 from django import forms
 from django.contrib.auth import get_user_model
 from betterforms.multiform import MultiModelForm
-from .models import AuthToken, Profile, TOKEN_TYPE_PASSWORD_RESET
+from .models import AuthToken, Profile, TOKEN_TYPE_PASSWORD_RESET, Message
 
 
 class MyUserCreationForm(UserCreationForm):
@@ -140,3 +140,9 @@ class HostelServiceMultiForm(MultiModelForm):
         'user': MyUserCreationForm,
         'profile': ProfileChangeForm,
     }
+
+    class MessageForm(ModelForm):
+        class Meta:
+            model = Message
+            fields = ['message']
+            labels = {'message': ""}

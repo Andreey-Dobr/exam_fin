@@ -16,15 +16,12 @@
                <p> <img src="{% static 'img/image-not-found.png.png' %}" width="50" height="50" alt="guest_img" >
             </p>
 
-                {% if user.is_authenticated %}
+
                         <p>
-                            <span class="counter">{{ article.like_count }}</span>
-
-                                <a class="add" href="{% url 'accounts:add_friends' user.pk %}">Like</a>
-                                <a class="remove" href="#">Unlike</a>
-
+                            <a class="add" href="{% url 'accounts:add_friends' user.pk %}">Like</a>
+                            <a class="remove" href="#">Unlike</a>
                         </p>
-                {% endif %}
+
 
 
 

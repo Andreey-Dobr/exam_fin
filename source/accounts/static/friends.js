@@ -4,7 +4,6 @@ async function addFriends(event) {
     console.log(friendBtn)
     let url = friendBtn.href;
     console.log(url)
-
     try {
         let response = await makeRequest(url, 'POST');
         console.log(response);
