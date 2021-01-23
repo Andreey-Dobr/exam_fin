@@ -122,12 +122,19 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+MEDIA_ROOT: str = os.path.join(BASE_DIR, 'uploads')
 MEDIA_URL = '/media/'
 
-#LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = 'accounts:base'
+LOGOUT_REDIRECT_URL = 'accounts:base'
+LOGIN_URL = 'accounts:login'
+
 
 
 BOOTSTRAP4 = {
     'include_jquery': True,
 }
+
+# Email Activation
+
+ACTIVATE_USERS_EMAIL = False  # True

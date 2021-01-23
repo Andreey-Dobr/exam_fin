@@ -6,6 +6,7 @@ from django.utils.timezone import now
 from datetime import timedelta
 
 
+
 TOKEN_TYPE_REGISTER = 'register'
 TOKEN_TYPE_PASSWORD_RESET = 'password_reset'
 TOKEN_TYPE_CHOICES = (

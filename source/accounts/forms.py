@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.conf import settings
 from django import forms
 from django.contrib.auth import get_user_model
-
+from betterforms.multiform import MultiModelForm
 from .models import AuthToken, Profile, TOKEN_TYPE_PASSWORD_RESET
 
 
@@ -128,3 +128,11 @@ class PasswordResetEmailForm(forms.Form):
 
 class PasswordResetForm(SetPasswordForm):
     pass
+
+
+
+class HostelServiceMultiForm(MultiModelForm):
+    form_classes = {
+        'user': MyUserCreationForm,
+        'profile': ProfileChangeForm,
+    }
