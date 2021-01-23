@@ -1,0 +1,32 @@
+{% if is_paginated %}
+        {% include 'partial/pagination.html' %}
+    {% endif %}
+
+    {% for photo in photos %}
+        <div >
+        <img src="{{ MEDIA_URL }}{{ photo.photo.url }}" />
+        <h1 style="text-transform: capitalize ;"><a style="text-decoration: none;text-transform: uppercase;color:
+        #6a7dff" href="{% url "webapp:photo_detail" photo.pk %}"> <span style="color: #20B2AA">{{ photo.label }}</span> </a></h1>
+        <p><span style="color: #008080; font-size: 20px">{{ photo.author }}</span></p>
+        <p>{{ photo.created_at }}</p>
+
+        {% if request.user.is_authenticated %}
+            <tr>
+
+            <td><a style="text-decoration: none;text-transform: uppercase;color:
+        #6a7dff" href="{% url "webapp:photo_update" photo.pk %}">update </a></td>
+            <td><a style="text-decoration: none;text-transform: uppercase;color:
+        #6a7dff" href="{% url "webapp:del" photo.pk %}">delete </a></td>
+                <hr>
+            <td><a style="text-decoration: none;text-transform: uppercase;color:
+        #6a7dff" href="#">add to favorite </a></td>
+            </tr>
+        {% endif %}
+
+        <hr>
+
+    </div>
+    {% endfor %}
+    {% if is_paginated %}
+        {% include 'partial/pagination.html' %}
+    {% endif %}
