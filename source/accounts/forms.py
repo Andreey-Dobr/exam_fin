@@ -1,6 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
+from django.forms import DateInput
 from django.urls import reverse
 from django.conf import settings
 from django import forms
@@ -59,6 +60,9 @@ class ProfileChangeForm(forms.ModelForm):
     class Meta:
         model = Profile
         exclude = ['user']
+        widgets = {
+            'birth_date': DateInput(attrs={'type': 'date'}),
+        }
 
 
 class SetPasswordForm(forms.ModelForm):

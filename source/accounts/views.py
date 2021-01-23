@@ -1,15 +1,17 @@
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model, login, update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-
+from django.contrib.auth.views import LogoutView
 
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import  redirect
 from django.urls import reverse, reverse_lazy
 
-from django.views.generic import View, FormView, DetailView, CreateView, UpdateView, TemplateView
+from django.views.generic import View, FormView, DetailView, CreateView, UpdateView, TemplateView, ListView
+from django.conf import settings
 
-from accounts.forms import MyUserCreationForm, UserChangeForm, ProfileChangeForm, HostelServiceMultiForm
+from accounts.forms import MyUserCreationForm, UserChangeForm, ProfileChangeForm, \
+    PasswordChangeForm, PasswordResetEmailForm, PasswordResetForm, HostelServiceMultiForm
 
 from .models import AuthToken, Profile
 
@@ -17,7 +19,7 @@ from .models import AuthToken, Profile
 class RegisterView(CreateView):
     model = User
     template_name = 'user_create.html'
-    form_class = HostelServiceMultiForm
+    form_class = UserChangeForm
 
     def form_valid(self, form):
         user = form.save()
@@ -25,12 +27,8 @@ class RegisterView(CreateView):
         return redirect(self.get_success_url())
 
     def get_success_url(self):
-        next_url = self.request.GET.get('next')
-        if not next_url:
-            next_url = self.request.POST.get('next')
-        if not next_url:
-            next_url = reverse('accounts:base')
-        return next_url
+        reverse('accounts:base')
+
 
 class RegisterActivateView(View):
     def get(self, request, *args, **kwargs):
@@ -74,6 +72,11 @@ class UserChangeView(UserPassesTestMixin, UpdateView):
             kwargs['profile_form'] = self.get_profile_form()
         return super().get_context_data(**kwargs)
 
+    def form_valid(self, form, profile_form):
+        form.save()
+        profile_form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form = self.get_form()
@@ -83,10 +86,7 @@ class UserChangeView(UserPassesTestMixin, UpdateView):
         else:
             return self.form_invalid(form, profile_form)
 
-    def form_valid(self, form, profile_form):
-        form.save()
-        profile_form.save()
-        return HttpResponseRedirect(self.get_success_url())
+
 
     def form_invalid(self, form, profile_form):
         context = self.get_context_data(form=form, profile_form=profile_form)
@@ -104,6 +104,61 @@ class UserChangeView(UserPassesTestMixin, UpdateView):
 
 
 
-class BaseView(TemplateView):
 
+class UserPasswordChangeView(LoginRequiredMixin, UpdateView):
+    model = get_user_model()
+    template_name = 'user_password_change.html'
+    form_class = PasswordChangeForm
+    context_object_name = 'user_obj'
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def form_valid(self, form):
+        user = form.save()
+        update_session_auth_hash(self.request, user)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('accounts:detail', kwargs={'pk': self.object.pk})
+
+
+
+
+
+class UserPasswordResetEmailView(FormView):
+    form_class = PasswordResetEmailForm
+    template_name = 'password_reset_email.html'
+    success_url = reverse_lazy('webapp:index')
+
+    def form_valid(self, form):
+        form.send_email()
+        return super().form_valid(form)
+
+
+class UserPasswordResetView(UpdateView):
+    model = User
+    form_class = PasswordResetForm
+    template_name = 'password_reset.html'
+    success_url = reverse_lazy('accounts:login')
+
+    def get_object(self, queryset=None):
+        token = self.get_token()
+        if token and token.is_alive():
+            return token.user
+        raise Http404('Ссылка не существует или её срок действия истёк')
+
+    def form_valid(self, form):
+        token = self.get_token()
+        token.delete()
+        return super().form_valid(form)
+
+    def get_token(self):
+        return AuthToken.get_token(self.kwargs.get('token'))
+
+class BaseView(ListView):
+    model = User
     template_name = 'index.html'
+    context_object_name = 'users'
+    paginate_by = 10
+

@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load bootstrap4 %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,14 +11,37 @@
 
     <!-- XDSoft DateTimePicker -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css" integrity="sha256-DOS9W6NR+NFe1fUhEE0PGKY/fubbUCnOfTje2JMDw3Y=" crossorigin="anonymous" />
-
     <link rel="stylesheet" href="{% static 'css/style.css'%}">
     {% block links %}{% endblock %}
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
+            <ul class="menu">
+                <li><a href="#">Home</a></li>
+                {% if request.user.is_authenticated %}
 
+                    {% block menu %}{% endblock %}
+                    <li><a href="{% url 'accounts:detail' request.user.pk %}">
+                        Привет, {{ request.user.get_full_name|default:request.user.username }}
+                    </a></li>
+                {% endif %}
+                {% block auth_menu %}
+                    {% if request.user.is_authenticated %}
+                        <li><a href="{% url 'accounts:logout' %}">Logout</a></li>
+                    {% else %}
+                        <li><a href="{% url 'accounts:login' %}">Login</a></li>
+                        <li><a href="{% url 'accounts:create' %}">Sign Up</a></li>
+                    {% endif %}
+                {% endblock %}
+                {% if not request.user.is_authenticated %}
+                    <li><a href="{% url 'accounts:password_reset_email' %}">Reset Password</a></li>
+                {% endif %}
+            </ul>
+
+            {% block search %}
+
+            {% endblock %}
         </div>
     </nav>
     <div class="container">

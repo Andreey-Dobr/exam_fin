@@ -1,16 +1,31 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
-hello world
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load bootstrap4 %}
+{% block content %}
+    <h1>Пользователи</h1>
+
+    {% for user  in users %}
+        <div class="box">
+            <h3><a href="{% url "accounts:detail" user.pk %}">{{ user.username }} </a></h3>
+
+
+            {% if user.photo %}
+                <img src="{{ user.photo.url }}" width="auto" height="200" alt="guest_img" align="left" vspace="5" hspace="10">
+            {% else %}
+               <p> <img src="{% static 'img/image-not-found.png.png' %}" width="50" height="50" alt="guest_img" >
+            </p>
+        {% endif %}
+</div>
+    {% endfor %}
+
+{% if is_paginated %}
+    {% include 'partial/pagination.html' %}
+{% endif %}
+
+{% endblock %}
 
 
 
-</body>
-</html>
+
+
+
